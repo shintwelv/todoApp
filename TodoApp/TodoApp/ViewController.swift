@@ -9,16 +9,6 @@ import UIKit
 
 final class ViewController: UIViewController {
     
-    private let titleLabel:UILabel = {
-        let label = UILabel()
-        label.text = "할 일"
-        label.textAlignment = .center
-        label.font = .systemFont(ofSize: 20, weight: .bold)
-        label.textColor = .black
-        label.backgroundColor = .systemGray5
-        return label
-    }()
-    
     private let todoListTableView: UITableView = {
         let tb = UITableView()
         tb.estimatedRowHeight = 50
@@ -26,7 +16,7 @@ final class ViewController: UIViewController {
     }()
     
     private var todoList: [(String, String)] = [
-        ("강아지 밥주기","100원 짜리 사료사용해서 아침 8시에 칼 같이 일어나 씻기도 전에 밥부터 줘야 함"),
+        ("강아지 밥주기","100원 짜리 사료사용해서\n아침 8시에 칼 같이 일어나\n씻기도 전에 밥부터 줘야 함"),
         ("고양이 밥주기","200원 짜리 사료사용"),
         ("사슴벌레 밥주기","300원 짜리 사료사용"),
         ("토끼 밥주기","400원 짜리 사료사용"),
@@ -45,36 +35,37 @@ final class ViewController: UIViewController {
     
     private func configureUI() -> Void {
         self.view.backgroundColor = .white
+        self.title = "할 일"
+        
+        let createButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(createButtonTapped))
+        
+        self.navigationController?.navigationBar.topItem?.rightBarButtonItem = createButton
         
         todoListTableView.delegate = self
         todoListTableView.dataSource = self
         todoListTableView.register(TodoCell.self, forCellReuseIdentifier: TodoCell.identifier)
         
-        [titleLabel, todoListTableView].forEach{self.view.addSubview($0)}
+        [todoListTableView].forEach{self.view.addSubview($0)}
     }
     
     private func configureAutoLayout() -> Void {
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         todoListTableView.translatesAutoresizingMaskIntoConstraints = false
         
-        let titleLabelConstraints: [NSLayoutConstraint] = [
-            titleLabel.topAnchor.constraint(equalTo: self.safeArea.topAnchor),
-            titleLabel.leftAnchor.constraint(equalTo: self.safeArea.leftAnchor),
-            titleLabel.rightAnchor.constraint(equalTo: self.safeArea.rightAnchor),
-            titleLabel.heightAnchor.constraint(equalToConstant: 50)
-        ]
-        
         let todoListTableViewConstraints: [NSLayoutConstraint] = [
-            todoListTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            todoListTableView.topAnchor.constraint(equalTo: self.safeArea.topAnchor),
             todoListTableView.leftAnchor.constraint(equalTo: self.safeArea.leftAnchor),
             todoListTableView.rightAnchor.constraint(equalTo: self.safeArea.rightAnchor),
             todoListTableView.bottomAnchor.constraint(equalTo: self.safeArea.bottomAnchor)
         ]
         
         NSLayoutConstraint.activate([
-            titleLabelConstraints,
             todoListTableViewConstraints
         ].flatMap{$0})
+    }
+    
+    @objc private func createButtonTapped(_ button:UIBarButtonItem) {
+        let vc: EditViewController = EditViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 
@@ -94,5 +85,11 @@ extension ViewController: UITableViewDataSource {
 }
 
 extension ViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let vc: EditViewController = EditViewController()
+        vc.configureData(todoList[indexPath.row])
+        navigationController?.pushViewController(vc, animated: true)
+    }
     
 }
