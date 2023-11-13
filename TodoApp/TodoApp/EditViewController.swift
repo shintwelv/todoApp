@@ -230,6 +230,9 @@ final class EditViewController: UIViewController {
         let entity: NSEntityDescription = NSEntityDescription.entity(forEntityName: "Todo", in: context)!
         
         let managedObject = NSManagedObject(entity: entity, insertInto: context)
+        managedObject.setValue(UUID(), forKey: "todoId")
+        managedObject.setValue(Date(), forKey: "createdDate")
+        managedObject.setValue(Date(), forKey: "modifiedDate")
         managedObject.setValue(title, forKey: "title")
         managedObject.setValue(detail, forKey: "detail")
         
@@ -246,7 +249,7 @@ final class EditViewController: UIViewController {
         let context: NSManagedObjectContext = self.container.viewContext
 
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Todo")
-        fetchRequest.predicate = NSPredicate(format: "title == %@ && detail == %@", todo!.title!, todo!.detail!)
+        fetchRequest.predicate = NSPredicate(format: "todoId == %@", todo!.todoId! as NSUUID)
         
         do {
             let title: String = titleTextView.text
@@ -256,6 +259,7 @@ final class EditViewController: UIViewController {
             let managedObject = result[0] as! NSManagedObject
             managedObject.setValue(title, forKey: "title")
             managedObject.setValue(detail, forKey: "detail")
+            managedObject.setValue(Date(), forKey: "modifiedDate")
             
             saveContext(context) { error in
                 if let error = error {
