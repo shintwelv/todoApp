@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		ED23A6152B01A99300140FAD /* Todo.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = ED23A6132B01A99300140FAD /* Todo.xcdatamodeld */; };
 		ED3A080B2AFDC91C009D8F11 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3A080A2AFDC91C009D8F11 /* AppDelegate.swift */; };
 		ED3A080D2AFDC91C009D8F11 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3A080C2AFDC91C009D8F11 /* SceneDelegate.swift */; };
 		ED3A080F2AFDC91C009D8F11 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED3A080E2AFDC91C009D8F11 /* ViewController.swift */; };
@@ -18,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		ED23A6142B01A99300140FAD /* Todo.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Todo.xcdatamodel; sourceTree = "<group>"; };
 		ED3A08072AFDC91C009D8F11 /* TodoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TodoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED3A080A2AFDC91C009D8F11 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		ED3A080C2AFDC91C009D8F11 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -69,6 +71,7 @@
 				ED3A08132AFDC925009D8F11 /* Assets.xcassets */,
 				ED3A08152AFDC925009D8F11 /* LaunchScreen.storyboard */,
 				ED3A08182AFDC925009D8F11 /* Info.plist */,
+				ED23A6132B01A99300140FAD /* Todo.xcdatamodeld */,
 			);
 			path = TodoApp;
 			sourceTree = "<group>";
@@ -145,6 +148,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ED3A08212AFDD60D009D8F11 /* EditViewController.swift in Sources */,
+				ED23A6152B01A99300140FAD /* Todo.xcdatamodeld in Sources */,
 				ED3A080F2AFDC91C009D8F11 /* ViewController.swift in Sources */,
 				ED3A080B2AFDC91C009D8F11 /* AppDelegate.swift in Sources */,
 				ED3A080D2AFDC91C009D8F11 /* SceneDelegate.swift in Sources */,
@@ -377,6 +381,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		ED23A6132B01A99300140FAD /* Todo.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				ED23A6142B01A99300140FAD /* Todo.xcdatamodel */,
+			);
+			currentVersion = ED23A6142B01A99300140FAD /* Todo.xcdatamodel */;
+			path = Todo.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = ED3A07FF2AFDC91C009D8F11 /* Project object */;
 }

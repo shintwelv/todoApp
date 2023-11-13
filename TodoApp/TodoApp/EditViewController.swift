@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 enum ViewTag: Int {
     case titleTextView = 100
@@ -13,6 +14,8 @@ enum ViewTag: Int {
 }
 
 final class EditViewController: UIViewController {
+    
+    private var container: NSPersistentContainer!
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -85,10 +88,13 @@ final class EditViewController: UIViewController {
         return self.view.safeAreaLayoutGuide
     }
     
-    private var todo:(String, String)?
+    private var todo:Todo?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        self.container = appDelegate.persistentContainer
         
         configureUI()
         configureAutoLayout()
@@ -113,7 +119,7 @@ final class EditViewController: UIViewController {
             self.view.addSubview($0)
         }
         
-        if let todo = todo {
+        if let _ = todo {
             [
                 updateButton,
                 deleteButton
@@ -197,7 +203,7 @@ final class EditViewController: UIViewController {
             descriptionTextViewConstraints,
         ].flatMap{$0})
         
-        if let todo = todo {
+        if let _ = todo {
             NSLayoutConstraint.activate([
                 updateButtonConstraints,
                 deleteButtonConstraints
@@ -210,35 +216,104 @@ final class EditViewController: UIViewController {
     }
     
     
-    func configureData(_ todo:(String, String)) -> Void {
+    func configureData(_ todo:Todo) -> Void {
         self.todo = todo
-        self.titleTextView.text = todo.0
-        self.descriptionTextView.text = todo.1
+        self.titleTextView.text = todo.title
+        self.descriptionTextView.text = todo.detail
     }
     
     @objc private func createButtonTapped(_ button: UIButton) {
-        self.navigationController?.popViewController(animated: true)
+        let title: String = titleTextView.text
+        let detail: String = descriptionTextView.text
+        
+        let context: NSManagedObjectContext = self.container.viewContext
+        let entity: NSEntityDescription = NSEntityDescription.entity(forEntityName: "Todo", in: context)!
+        
+        let managedObject = NSManagedObject(entity: entity, insertInto: context)
+        managedObject.setValue(title, forKey: "title")
+        managedObject.setValue(detail, forKey: "detail")
+        
+        saveContext(context) { error in
+            if let error = error {
+                print("failed to create todo = \(error.localizedDescription)")
+            } else {
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
     }
     
     @objc private func updateButtonTapped(_ button: UIButton) {
-        self.navigationController?.popViewController(animated: true)
+        let context: NSManagedObjectContext = self.container.viewContext
+
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Todo")
+        fetchRequest.predicate = NSPredicate(format: "title == %@ && detail == %@", todo!.title!, todo!.detail!)
+        
+        do {
+            let title: String = titleTextView.text
+            let detail: String = descriptionTextView.text
+            
+            let result = try context.fetch(fetchRequest)
+            let managedObject = result[0] as! NSManagedObject
+            managedObject.setValue(title, forKey: "title")
+            managedObject.setValue(detail, forKey: "detail")
+            
+            saveContext(context) { error in
+                if let error = error {
+                    print("failed to update todo item = \(error.localizedDescription)")
+                } else {
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+        } catch {
+            print("failed to update todo item = \(error.localizedDescription)")
+        }
     }
     
     @objc private func deleteButtonTapped(_ button: UIButton) {
-        let alertController = UIAlertController(title: "주의", message: "정말 삭제하시겠습니까?", preferredStyle: .alert)
+        let context: NSManagedObjectContext = self.container.viewContext
         
-        let okAction = UIAlertAction(title: "삭제", style: .destructive) { _ in
-            self.navigationController?.popViewController(animated: true)
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Todo")
+        fetchRequest.predicate = NSPredicate(format: "title == %@ && detail == %@", todo!.title!, todo!.detail!)
+        
+        do {
+            let result = try context.fetch(fetchRequest)
+            let managedObject = result[0] as! NSManagedObject
+            context.delete(managedObject)
+            
+            saveContext(context) { error in
+                if let error = error {
+                    print("failed to delete todo item = \(error.localizedDescription)")
+                } else {
+                    let alertController = UIAlertController(title: "주의", message: "정말 삭제하시겠습니까?", preferredStyle: .alert)
+                    
+                    let okAction = UIAlertAction(title: "삭제", style: .destructive) { _ in
+                        self.navigationController?.popViewController(animated: true)
+                    }
+                    
+                    let cancelAction = UIAlertAction(title: "취소", style: .default, handler: nil)
+                    
+                    alertController.addAction(cancelAction)
+                    alertController.addAction(okAction)
+                    
+                    self.present(alertController, animated: true)
+                }
+            }
+        } catch {
+            print("failed to delete todo item = \(error.localizedDescription)")
         }
-        
-        let cancelAction = UIAlertAction(title: "취소", style: .default) { _ in
-            self.navigationController?.popViewController(animated: true)
+    }
+    
+    private func saveContext(_ context:NSManagedObjectContext, completionHander:((NSError?) -> ())?) -> Void {
+        do {
+            try context.save()
+            if let completionHander = completionHander {
+                completionHander(nil)
+            }
+        } catch {
+            if let completionHander = completionHander {
+                completionHander(error as NSError?)
+            }
         }
-        
-        alertController.addAction(cancelAction)
-        alertController.addAction(okAction)
-        
-        self.present(alertController, animated: true)
     }
 }
 

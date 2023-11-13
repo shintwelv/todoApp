@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import CoreData
 
 final class ViewController: UIViewController {
+    
+    private var container: NSPersistentContainer!
     
     private let todoListTableView: UITableView = {
         let tb = UITableView()
@@ -15,12 +18,7 @@ final class ViewController: UIViewController {
         return tb
     }()
     
-    private var todoList: [(String, String)] = [
-        ("강아지 밥주기","100원 짜리 사료사용해서\n아침 8시에 칼 같이 일어나\n씻기도 전에 밥부터 줘야 함"),
-        ("고양이 밥주기","200원 짜리 사료사용"),
-        ("사슴벌레 밥주기","300원 짜리 사료사용"),
-        ("토끼 밥주기","400원 짜리 사료사용"),
-    ]
+    private var todoList: [Todo] = []
     
     private var safeArea: UILayoutGuide {
         return self.view.safeAreaLayoutGuide
@@ -29,8 +27,26 @@ final class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        self.container = appDelegate.persistentContainer
+        
         configureUI()
         configureAutoLayout()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        fetchTodoList()
+    }
+    
+    private func fetchTodoList() -> Void {
+        do {
+            let request = Todo.fetchRequest()
+            let todoList = try self.container.viewContext.fetch(request)
+            self.todoList = todoList
+            todoListTableView.reloadData()
+        } catch {
+            print(error.localizedDescription)
+        }
     }
     
     private func configureUI() -> Void {
@@ -77,8 +93,8 @@ extension ViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: TodoCell.identifier) as? TodoCell else {return UITableViewCell()}
         
-        cell.titleLabel.text = todoList[indexPath.row].0
-        cell.descriptionLabel.text = todoList[indexPath.row].1
+        cell.titleLabel.text = todoList[indexPath.row].title
+        cell.descriptionLabel.text = todoList[indexPath.row].detail
         
         return cell
     }
